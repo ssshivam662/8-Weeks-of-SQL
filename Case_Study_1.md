@@ -33,5 +33,30 @@ Solution.
 
    ![image](https://user-images.githubusercontent.com/61065350/130071134-06519080-5a04-461b-a92c-b4340606c027.png)
 
-    
+Question 4 a. What is the most purchased item on the menu?
+
+Solution.    
+
+      SELECT sales.product_id,
+       count(sales.product_id) AS number_of_times_purchased
+      FROM sales
+           JOIN
+           menu ON sales.product_id = menu.product_id
+     GROUP BY sales.product_id
+     ORDER BY number_of_times_purchased DESC
+     LIMIT 1;
+     
+   ![image](https://user-images.githubusercontent.com/61065350/130074716-5b62d325-5bbe-4559-8fc2-3e3aac088598.png)
+   
+Question 4 b. And how many times was it purchased by all customers?
+
+Solution.
+
+      select customer_id, count(customer_id) from sales
+      where product_id=3
+      group by customer_id;
+        
+   ![image](https://user-images.githubusercontent.com/61065350/130081883-e6b4cd0f-9164-47bf-88b1-c885858ad780.png)
+
+
         

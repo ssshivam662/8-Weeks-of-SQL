@@ -2,6 +2,8 @@
 
 ## Case Study #1 - Danny's Diner
 
+#### I had great time solving the questions for Danny's imaginary restaurant. I have to admit I took help from medium article 'https://medium.com/analytics-vidhya/8-week-sql-challenge-case-study-week-1-dannys-diner-2ba026c897ab' by Katie Huang for some questions (which used rank) as I am still learning. Hope to learn more and solve more queries in coming time.
+
 Question 1. What is the total amount each customer spent at the restaurant?
 
 Solution.

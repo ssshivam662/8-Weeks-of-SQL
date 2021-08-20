@@ -38,7 +38,7 @@ Question 4 a. What is the most purchased item on the menu?
 Solution.    
 
       SELECT sales.product_id,
-       count(sales.product_id) AS number_of_times_purchased
+       count(sales.product_id) AS number_of_times_purchased,menu.product_name
       FROM sales
            JOIN
            menu ON sales.product_id = menu.product_id
@@ -46,7 +46,7 @@ Solution.
      ORDER BY number_of_times_purchased DESC
      LIMIT 1;
      
-   ![image](https://user-images.githubusercontent.com/61065350/130074716-5b62d325-5bbe-4559-8fc2-3e3aac088598.png)
+   ![image](https://user-images.githubusercontent.com/61065350/130187268-20ad0c1b-5129-4356-84ba-cd5cd12df0b3.png)
    
 Question 4 b. And how many times was it purchased by all customers?
 
@@ -57,6 +57,93 @@ Solution.
       group by customer_id;
         
    ![image](https://user-images.githubusercontent.com/61065350/130081883-e6b4cd0f-9164-47bf-88b1-c885858ad780.png)
+   
+Question 5. Which item was the most popular for each customer?
+
+Solution.
+
+     WITH cte AS (
+    SELECT sales.customer_id,
+           sales.order_date,
+           sales.product_id,
+           menu.product_name,
+           count(sales.product_id),
+           dense_rank() OVER (PARTITION BY sales.customer_id ORDER BY count(sales.customer_id) ) AS rank
+      FROM sales
+           JOIN
+           menu ON sales.product_id = menu.product_id
+     GROUP BY sales.customer_id,
+              sales.product_id
+            )
+        SELECT *
+          FROM cte
+         WHERE rank = 1;
+         
+   ![image](https://user-images.githubusercontent.com/61065350/130192023-888e67df-71cc-4aa4-aa55-776d83d6bfbe.png)
 
 
-        
+Question 6. Which item was purchased first by the customer after they became a member?
+
+Solution.
+
+      SELECT members.customer_id,
+           min(sales.order_date) AS first_order_date_after_joining,
+           menu.product_name
+      FROM sales
+           JOIN
+           members ON sales.customer_id = members.customer_id
+           JOIN
+           menu ON sales.product_id = menu.product_id
+     WHERE order_date >= join_date
+     GROUP BY members.customer_id;
+
+   ![image](https://user-images.githubusercontent.com/61065350/130189456-3cc608e8-21f9-4b16-8073-d290c195ea4c.png)
+
+Question 7. Which item was purchased just before the customer became a member?
+
+Solution.
+
+      SELECT members.customer_id,
+           max(sales.order_date) AS first_order_date_after_joining,
+           menu.product_name
+      FROM sales
+           JOIN
+           members ON sales.customer_id = members.customer_id
+           JOIN
+           menu ON sales.product_id = menu.product_id
+     WHERE order_date < join_date
+     GROUP BY members.customer_id;
+     
+   ![image](https://user-images.githubusercontent.com/61065350/130189908-4d1cb842-6bbb-43cc-bdab-12cfa5ded401.png)
+   
+Question 8. What is the total items and amount spent for each member before they became a member?
+
+Solution.
+    
+      SELECT members.customer_id,
+       count(distinct sales.product_id) as number_of_items,sum(menu.price) as total_price
+      FROM sales
+           JOIN
+           members ON sales.customer_id = members.customer_id
+           JOIN
+           menu ON sales.product_id = menu.product_id
+     WHERE order_date < join_date
+     GROUP BY members.customer_id;
+   ![image](https://user-images.githubusercontent.com/61065350/130192909-a945a910-4896-45da-966b-8f54d14742e0.png)
+
+Question 9. If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+
+Solution.
+
+    select sales.customer_id,
+    case menu.product_name
+        when 'sushi' then menu.price*20
+        else menu.price*10
+    end points
+    from sales
+     join menu 
+    on sales.product_id=menu.product_id
+    group by sales.customer_id;
+   ![image](https://user-images.githubusercontent.com/61065350/130196372-4aa5f5a8-b042-4121-92c9-883b9128a3ff.png)
+
+

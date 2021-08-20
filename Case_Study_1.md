@@ -135,15 +135,18 @@ Question 9. If each $1 spent equates to 10 points and sushi has a 2x points mult
 
 Solution.
 
-    select sales.customer_id,
-    case menu.product_name
-        when 'sushi' then menu.price*20
-        else menu.price*10
-    end points
-    from sales
-     join menu 
-    on sales.product_id=menu.product_id
-    group by sales.customer_id;
-   ![image](https://user-images.githubusercontent.com/61065350/130196372-4aa5f5a8-b042-4121-92c9-883b9128a3ff.png)
+       with points as (
+        select sales.customer_id,
+        case menu.product_name
+            when 'sushi' then menu.price*20
+            else menu.price*10
+        end points
+        from sales
+         join menu 
+        on sales.product_id=menu.product_id
+         )
+        select customer_id,sum(points) from points
+        group by customer_id;
+   ![image](https://user-images.githubusercontent.com/61065350/130197394-de9aa958-6218-456d-b017-6479487997ac.png)
 
 

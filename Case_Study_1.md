@@ -26,12 +26,29 @@ Question 3. What was the first item from the menu purchased by each customer?
 
 Solution.
 
+Approach 1.
+
     select sales.customer_id,menu.product_name,min(sales.order_date) as first_visit_date from sales 
     join menu on
     sales.product_id=menu.product_id
     group by customer_id;
 
    ![image](https://user-images.githubusercontent.com/61065350/130071134-06519080-5a04-461b-a92c-b4340606c027.png)
+   
+Approach 2.
+
+    with orders as(
+    select sales.customer_id,menu.product_name,sales.order_date, 
+    dense_rank() over(partition by sales.customer_id  
+    order by sales.order_date) as rank from
+    sales
+    join menu
+    on sales.product_id=menu.product_id)
+    select * from orders
+    where rank=1
+    group by customer_id,product_name
+   ![image](https://user-images.githubusercontent.com/61065350/130247631-f50af48c-4597-4687-adf6-343652fab6f4.png)
+
 
 Question 4 a. What is the most purchased item on the menu?
 
@@ -149,4 +166,24 @@ Solution.
         group by customer_id;
    ![image](https://user-images.githubusercontent.com/61065350/130197394-de9aa958-6218-456d-b017-6479487997ac.png)
 
+Question 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January? (Good problem for revision**)
 
+Solution.
+
+    with point as (
+     SELECT sales.customer_id,members.join_date,sales.order_date,menu.price,menu.product_name,
+     case when menu.product_name='sushi'  then menu.price*20
+     when sales.order_date>=members.join_date and sales.order_date<datetime(members.join_date, '+6 day') then menu.price*20
+     else menu.price*10
+     end as point_scheme
+      FROM sales 
+      join members on
+      sales.customer_id=members.customer_id
+      join menu on 
+      sales.product_id=menu.product_id
+      )
+      select customer_id,sum(point_scheme) from point 
+    where order_date<'2021-01-31'
+      group by customer_id;
+
+   ![image](https://user-images.githubusercontent.com/61065350/130253683-faf9095b-d3ad-4fa8-9b38-40b5596f1558.png)

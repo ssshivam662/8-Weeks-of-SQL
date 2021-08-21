@@ -189,3 +189,47 @@ Solution.
       group by customer_id;
 
    ![image](https://user-images.githubusercontent.com/61065350/130253683-faf9095b-d3ad-4fa8-9b38-40b5596f1558.png)
+
+
+BONUS 1. The following questions are related creating basic data tables that Danny and his team can use to quickly derive insights without needing to join the underlying tables using SQL.
+
+Solution.
+           
+           SELECT sales.customer_id,
+           sales.order_date,
+           menu.product_name,
+           menu.price,
+           CASE WHEN sales.customer_id = 'A' AND 
+                     sales.order_date >= '2021-01-07' THEN 'Y' WHEN sales.customer_id = 'B' AND 
+                     sales.order_date >= '2021-01-09' THEN 'Y' ELSE 'N' END member
+          FROM sales
+               JOIN
+               menu ON sales.product_id = menu.product_id;
+               
+   ![image](https://user-images.githubusercontent.com/61065350/130317706-8d391995-c0b6-406b-b309-c57a43233f23.png)
+  
+BONUS 2. Rank All The Things
+Danny also requires further information about the ranking of customer products, but he purposely does not need the ranking for non-member purchases so he expects null ranking values for the records when customers are not yet part of the loyalty program.
+
+Solution.
+
+        with master as (
+        select sales.customer_id,sales.order_date,menu.product_name,menu.price,
+        case when sales.order_date>=members.join_date then 'Y'
+        else 'N'
+        end member
+        from sales
+        left join members
+        on sales.customer_id=members.customer_id
+        left join menu
+        on sales.product_id=menu.product_id)
+
+        select *, case
+        when member='N' then Null
+        else dense_rank() over (partition by customer_id,member order by order_date)
+        end ranking
+        from master;
+       
+   ![image](https://user-images.githubusercontent.com/61065350/130318611-4a91511c-bf9e-4925-81f0-624e0d34a5ef.png)
+
+
